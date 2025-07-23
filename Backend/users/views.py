@@ -2,7 +2,6 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from .models import Chemical, AuditLog
 from .serializers import ChemicalSerializer
-from .permissions import IsTeacherOrAssistant
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -69,7 +68,8 @@ class ChemicalViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]  # All logged-in users can view
         elif self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsTeacherOrAssistant()]  # Only teachers/assistants can modify
+            from Backend.full_auth.permissions import IsLabExpertOrTeacherOrReadOnly
+            return [IsLabExpertOrTeacherOrReadOnly()]  # Only lab_expert/teachers can modify
         return super().get_permissions()
 
     def perform_create(self, serializer):

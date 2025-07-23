@@ -9,6 +9,8 @@ from django.contrib.auth import get_user_model
 
 
 
+from django.contrib.auth.models import Group, Permission
+
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('student', 'Student'),
@@ -17,6 +19,23 @@ class CustomUser(AbstractUser):
         ('other', 'Other'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name='customuser_set',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        verbose_name='groups',
+        related_query_name='customuser',
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='customuser_set',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+        related_query_name='customuser',
+    )
 
 msds_file = models.FileField(upload_to='msds/', null=True, blank=True)
 
@@ -53,10 +72,29 @@ class UserAccountManager(BaseUserManager):
         return user
 
 
+from django.contrib.auth.models import Group, Permission
+
 class UserAccount(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True, max_length=255)
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name='useraccount_set',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        verbose_name='groups',
+        related_query_name='useraccount',
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='useraccount_set',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+        related_query_name='useraccount',
+    )
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

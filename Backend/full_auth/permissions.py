@@ -7,3 +7,9 @@ class IsTeacherOrAssistant(permissions.BasePermission):
             request.user.is_authenticated and
             request.user.role in ['teacher', 'assistant']
         )
+
+class IsLabExpertOrTeacherOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user and request.user.is_authenticated and request.user.role in ['lab_expert', 'teacher']
